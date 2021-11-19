@@ -3,15 +3,17 @@ from tkinter import *
 from tkinter import messagebox
 from functools import partial
 
+from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
 from src.tws.tws import get_existing_positions
 
 
-class Controller(object):
+class Positions(object):
     PRESALE_DEFAULT_VALUE = 0
 
-    def __init__(self, root):
+    def __init__(self, root, config: Schema):
         self.root = root
+        self.config = config
         self.presale_vars = {}
         self.frame = self._init_frame()
 
@@ -36,15 +38,14 @@ class Controller(object):
         # Ticker name
         ttk.Label(self.frame.scrollable_frame, text=ticker).grid(column=0, row=row_index, pady=3)
 
-        # Sell buttons
-        ttk.Button(self.frame.scrollable_frame, text='sell 10%').grid(column=1, row=row_index, pady=3)
-        ttk.Button(self.frame.scrollable_frame, text='sell 20%').grid(column=2, row=row_index, pady=3)
-        ttk.Button(self.frame.scrollable_frame, text='sell 50%').grid(column=3, row=row_index, pady=3)
+        for index, value in enumerate(self.config.positions.sell_buttons):
+            # Sell buttons
+            ttk.Button(self.frame.scrollable_frame, text=f'sell {value}%').grid(column=index + 1, row=row_index, pady=3)
 
         # Presale combobox
         self.presale_vars[ticker] = IntVar()
         presale_box = ttk.Combobox(self.frame.scrollable_frame, textvariable=self.presale_vars[ticker])
-        presale_box['values'] = (0, 10, 20, 50)
+        presale_box['values'] = [0] + self.config.positions.presale_values
         presale_box.bind('<<ComboboxSelected>>', partial(self.__presale_popup, ticker))
         presale_box.grid(column=4, row=row_index, pady=3)
 

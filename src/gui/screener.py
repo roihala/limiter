@@ -1,12 +1,14 @@
 from tkinter import ttk
 
+from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
 from src.tws.tws import get_todays_alerts
 
 
 class Screener(object):
-    def __init__(self, root):
+    def __init__(self, root, config: Schema):
         self.root = root
+        self.config = config
         self.frame = self._init_frame()
 
     def _init_frame(self):

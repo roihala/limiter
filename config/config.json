@@ -1,0 +1,7 @@
+{
+  "positions": {
+    "sell_buttons": [10, 20, 50],
+    "presale_values":  [10, 20, 50]
+  },
+  "screener":  {}
+}

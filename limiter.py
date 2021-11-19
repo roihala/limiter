@@ -1,10 +1,19 @@
+import json
 import os
 import tkinter
 import tkinter as tk
 import argparse
+from json import JSONDecodeError
+from tkinter import messagebox
 
-from src.gui.controller import Controller
+from pydantic import ValidationError
+
+from config.schema import Schema
+from src.gui.positions import Positions
 from src.gui.screener import Screener
+
+
+CONFIG_FILE_PATH = os.path.join(os.path.dirname(__file__), 'config', 'config.json')
 
 
 class Limiter(object):
@@ -14,6 +23,9 @@ class Limiter(object):
         self.root = None
         self.screener = None
         self.controller = None
+        self.config = self._init_config()
+        if self.config:
+            self.init_tkinter()
 
     def create_parser(self):
         parser = argparse.ArgumentParser()
@@ -28,8 +40,8 @@ class Limiter(object):
         main_panel = tk.PanedWindow(orient=tk.VERTICAL)
         main_panel.pack(fill=tk.BOTH, expand=1)
 
-        self.screener = Screener(main_panel)
-        self.controller = Controller(main_panel)
+        self.screener = Screener(main_panel, self.config)
+        self.controller = Positions(main_panel, self.config)
 
         root = self.root
         root.iconbitmap(os.path.join(os.path.dirname(__file__), 'lib', 'favicon.ico'))
@@ -45,9 +57,25 @@ class Limiter(object):
 
         root.mainloop()
 
-    def run(self):
-        self.init_tkinter()
+    def _init_config(self):
+        f = open(CONFIG_FILE_PATH)
+        try:
+            data = json.load(f)
+            return Schema(**data)
+
+        except ValidationError as e:
+            messagebox.showerror(
+                message=f"Error in config file schema:\n{e}",
+                title='Config file error')
+        except JSONDecodeError as e:
+            messagebox.showerror(
+                message=f"Error parsing config file:\n{e}",
+                title='Config file error')
+        except Exception as e:
+            messagebox.showerror(
+                message=f"General config file error:\n{e}",
+                title='Config file error')
 
 
 if __name__ == '__main__':
-    Limiter().run()
+    Limiter()
