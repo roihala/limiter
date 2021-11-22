@@ -24,7 +24,6 @@ class Main(object):
     def __init__(self, event_loop):
         args = self.create_parser().parse_args()
         os.environ['DEBUG'] = str(args.debug)
-        print(os.getenv('DEBUG'))
         logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
         self.logger = logging.getLogger(self.__class__.__name__)
         self.loop = event_loop
@@ -63,10 +62,10 @@ if __name__ == '__main__':
     ib = IB()
     ib.connect('127.0.0.1', 7497, clientId=1)
 
-    tws = Tws(ib)
 
     loop = asyncio.get_event_loop()
     main = Main(loop)
+    tws = Tws(ib, main.config)
     gui = AsyncTk(loop, main.config, tws)
 
     loop.create_task(scan(ib))

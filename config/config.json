@@ -1,7 +1,16 @@
 {
   "positions": {
-    "sell_buttons": [10, 20, 50],
-    "presale_values":  [10, 20, 50]
+    "sell_buttons": {
+      "values": [10, 20, 50],
+      "limit_gap": 3
+    },
+    "presale_combobox": {
+      "values": [10, 20, 50],
+      "quantity_precents": 10
+    }
   },
-  "screener":  {}
+  "screener":  {
+    "limit_gap": -3,
+    "position_size_usd": 10000
+  }
 }
