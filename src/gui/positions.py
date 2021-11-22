@@ -5,15 +5,16 @@ from functools import partial
 
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
-from src.tws.tws import get_existing_positions
+from src.tws.tws import Tws
 
 
 class Positions(object):
     PRESALE_DEFAULT_VALUE = 0
 
-    def __init__(self, root, config: Schema):
+    def __init__(self, root, config: Schema, tws: Tws):
         self.root = root
         self.config = config
+        self.tws = tws
         self.presale_vars = {}
         self.frame = self._init_frame()
 
@@ -26,7 +27,7 @@ class Positions(object):
         self.frame.columnconfigure(0, weight=1)
         self.frame.rowconfigure(0, weight=1)
 
-        for ticker in get_existing_positions():
+        for ticker in self.tws.get_existing_positions():
             self.print_position(ticker)
 
         return self.frame

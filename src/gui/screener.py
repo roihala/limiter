@@ -2,13 +2,14 @@ from tkinter import ttk
 
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
-from src.tws.tws import get_todays_alerts
+from src.tws.tws import Tws
 
 
 class Screener(object):
-    def __init__(self, root, config: Schema):
+    def __init__(self, root, config: Schema, tws: Tws):
         self.root = root
         self.config = config
+        self.tws = tws
         self.frame = self._init_frame()
 
     def _init_frame(self):
@@ -21,7 +22,7 @@ class Screener(object):
         return self.frame
 
     def add_ticker(self, ticker):
-        self.__draw_grid(get_todays_alerts() + [ticker])
+        self.__draw_grid(self.tws.screener_results + [ticker])
 
     def __draw_grid(self, tickers):
         for slave in self.frame.scrollable_frame.grid_slaves():
