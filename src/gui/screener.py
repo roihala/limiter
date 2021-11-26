@@ -1,18 +1,20 @@
+import asyncio
 import os
 from functools import partial
 from tkinter import ttk
 
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
-from src.tws.tws import Tws
+import tws
 
 
 class Screener(object):
-    def __init__(self, root, config: Schema, tws: Tws):
+    def __init__(self, root, config: Schema, tws_instance: tws.Tws):
         self.root = root
         self.config = config
-        self.tws = tws
+        self.tws = tws_instance
         self.frame = self._init_frame()
+        self.grid_tickers = set()
 
     def _init_frame(self):
         self.frame = ScrollableFrame(self.root, title='Screener')
@@ -21,26 +23,24 @@ class Screener(object):
         self.frame['borderwidth'] = 5
 
         self.frame.columnconfigure(0, weight=1)
-        if bool(os.getenv('DEBUG')):
-            ttk.Button(self.frame, text='test', command=self.__test).grid(row=0, column=0, sticky='N')
         return self.frame
 
-    def __test(self):
-        self.add_ticker('AAPL')
-
-    def add_ticker(self, ticker):
-        self.__draw_grid(self.tws.screener_results + [ticker])
-
     def __buy_onclick(self, ticker):
-        self.tws.scanner_buy(ticker)
-        print(ticker)
+        loop = asyncio.get_event_loop()
+        loop.create_task(self.tws.screener_buy(ticker))
 
-    def __draw_grid(self, tickers):
+    def draw_grid(self, tickers):
+        new_tickers = [ticker for ticker in tickers if ticker not in self.grid_tickers]
+
+        if not new_tickers:
+            return
+
         for slave in self.frame.scrollable_frame.grid_slaves():
             slave.grid_forget()
 
-        tickers = iter(tickers)
+        tickers = iter(list(self.grid_tickers) + new_tickers)
         ticker = next(tickers)
+        self.grid_tickers.add(ticker)
         new_button = ttk.Button(self.frame.scrollable_frame, text=ticker, command=partial(self.__buy_onclick, ticker))
         new_button.grid(column=0, row=0)
         self.root.update()
@@ -54,6 +54,7 @@ class Screener(object):
                     if row == 0:
                         col += 1
                     ticker = next(tickers)
+                    self.grid_tickers.add(ticker)
                     new_button = ttk.Button(self.frame.scrollable_frame,
                                             text=ticker,
                                             command=partial(self.__buy_onclick, ticker))

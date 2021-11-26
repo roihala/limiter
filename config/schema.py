@@ -10,19 +10,27 @@ class SellButtons(BaseModel):
 
 class PresaleComboBox(BaseModel):
     values: List[int]
-    quantity_precents: int
+    quantity_percents: int
 
 
-class Positions(BaseModel):
-    sell_buttons: SellButtons
-    presale_combobox: PresaleComboBox
-
-
-class Screener(BaseModel):
+class ScreenerBuy(BaseModel):
     limit_gap: int
     position_size_usd: int
 
 
+class Buttons(BaseModel):
+    sell_buttons: SellButtons
+    presale_combobox: PresaleComboBox
+    screener_buy: ScreenerBuy
+
+
+class Screener(BaseModel):
+    above_price: int
+    below_price: int
+    change_percents: int
+    above_volume: int
+
+
 class Schema(BaseModel):
-    positions: Positions
+    buttons: Buttons
     screener: Screener

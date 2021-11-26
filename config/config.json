@@ -1,16 +1,22 @@
 {
-  "positions": {
+  "buttons": {
     "sell_buttons": {
       "values": [10, 20, 50],
-      "limit_gap": 3
+      "limit_gap": -3
     },
     "presale_combobox": {
       "values": [10, 20, 50],
-      "quantity_precents": 10
+      "quantity_percents": 10
+    },
+    "screener_buy": {
+      "limit_gap": 3,
+      "position_size_usd": 10000
     }
   },
   "screener":  {
-    "limit_gap": -3,
-    "position_size_usd": 10000
+    "above_price": 5,
+    "below_price": 50,
+    "change_percents": 20,
+    "above_volume": 1000000
   }
 }
