@@ -28,7 +28,11 @@ class Main(object):
     def __init__(self, loop):
         args = self.create_parser().parse_args()
         os.environ['DEBUG'] = str(args.debug)
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+        if os.environ['DEBUG']:
+            logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+        else:
+            logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
+                                filename=os.path.join(os.path.dirname(__file__), 'logs', 'log.log'))
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config = self._init_config()
         self.loop = loop

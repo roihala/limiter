@@ -1,0 +1,114 @@
+2021-11-30 10:46:17,566 INFO Connecting to 127.0.0.1:7497 with clientId 1...
+2021-11-30 10:46:17,567 INFO Connected
+2021-11-30 10:46:17,570 INFO Logged on to server version 152
+2021-11-30 10:46:17,603 INFO API connection ready
+2021-11-30 10:46:17,604 INFO Warning 2104, reqId -1: Market data farm connection is OK:hfarm
+2021-11-30 10:46:17,605 INFO Warning 2104, reqId -1: Market data farm connection is OK:usfarm.nj
+2021-11-30 10:46:17,605 INFO Warning 2104, reqId -1: Market data farm connection is OK:usfuture
+2021-11-30 10:46:17,606 INFO Warning 2104, reqId -1: Market data farm connection is OK:eufarm
+2021-11-30 10:46:17,608 INFO Warning 2104, reqId -1: Market data farm connection is OK:jfarm
+2021-11-30 10:46:17,608 INFO Warning 2104, reqId -1: Market data farm connection is OK:cashfarm
+2021-11-30 10:46:17,609 INFO Warning 2104, reqId -1: Market data farm connection is OK:usfarm
+2021-11-30 10:46:17,609 INFO Warning 2106, reqId -1: HMDS data farm connection is OK:euhmds
+2021-11-30 10:46:17,609 INFO Warning 2106, reqId -1: HMDS data farm connection is OK:fundfarm
+2021-11-30 10:46:17,609 INFO Warning 2106, reqId -1: HMDS data farm connection is OK:ushmds
+2021-11-30 10:46:17,610 INFO Warning 2158, reqId -1: Sec-def data farm connection is OK:secdefil
+2021-11-30 10:46:17,624 INFO updatePortfolio: PortfolioItem(contract=Stock(conId=265598, symbol='AAPL', right='0', primaryExchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=6.0, marketPrice=160.6000061, marketValue=963.6, averageCost=160.21, unrealizedPNL=2.34, realizedPNL=0.0, account='DU4758041')
+2021-11-30 10:46:17,624 INFO updatePortfolio: PortfolioItem(contract=Stock(conId=506993770, symbol='ADGI', right='0', primaryExchange='NASDAQ', currency='USD', localSymbol='ADGI', tradingClass='NMS'), position=4220.0, marketPrice=45.4300003, marketValue=191714.6, averageCost=40.3300237, unrealizedPNL=21521.9, realizedPNL=0.0, account='DU4758041')
+2021-11-30 10:46:17,625 INFO updatePortfolio: PortfolioItem(contract=Stock(conId=520354990, symbol='BFRI', right='0', primaryExchange='NASDAQ', currency='USD', localSymbol='BFRI', tradingClass='SCM'), position=4219.0, marketPrice=6.8800001, marketValue=29026.72, averageCost=9.36206565, unrealizedPNL=-10471.83, realizedPNL=0.0, account='DU4758041')
+2021-11-30 10:46:17,625 INFO updatePortfolio: PortfolioItem(contract=Stock(conId=15124833, symbol='NFLX', right='0', primaryExchange='NASDAQ', currency='USD', localSymbol='NFLX', tradingClass='NMS'), position=1.0, marketPrice=664.0, marketValue=664.0, averageCost=666.95, unrealizedPNL=-2.95, realizedPNL=0.0, account='DU4758041')
+2021-11-30 10:46:17,626 INFO position: Position(account='DU4758041', contract=Stock(conId=506993770, symbol='ADGI', exchange='NASDAQ', currency='USD', localSymbol='ADGI', tradingClass='NMS'), position=4220.0, avgCost=40.3300237)
+2021-11-30 10:46:17,626 INFO position: Position(account='DU4758041', contract=Stock(conId=15124833, symbol='NFLX', exchange='NASDAQ', currency='USD', localSymbol='NFLX', tradingClass='NMS'), position=1.0, avgCost=666.95)
+2021-11-30 10:46:17,627 INFO position: Position(account='DU4758041', contract=Stock(conId=265598, symbol='AAPL', exchange='NASDAQ', currency='USD', localSymbol='AAPL', tradingClass='NMS'), position=6.0, avgCost=160.21)
+2021-11-30 10:46:17,627 INFO position: Position(account='DU4758041', contract=Stock(conId=520354990, symbol='BFRI', exchange='NASDAQ', currency='USD', localSymbol='BFRI', tradingClass='SCM'), position=4219.0, avgCost=9.36206565)
+2021-11-30 10:46:17,637 INFO Synchronization complete
+2021-11-30 10:46:18,489 INFO Warning 165, reqId 111: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:18,490 ERROR Error 162, reqId 111: Historical Market Data Service error message:API scanner subscription cancelled: 111
+2021-11-30 10:46:19,176 INFO Warning 165, reqId 112: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:19,177 ERROR Error 162, reqId 112: Historical Market Data Service error message:API scanner subscription cancelled: 112
+2021-11-30 10:46:19,730 INFO Warning 165, reqId 113: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:19,733 ERROR Error 162, reqId 113: Historical Market Data Service error message:API scanner subscription cancelled: 113
+2021-11-30 10:46:20,343 INFO Warning 165, reqId 114: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:20,345 ERROR Error 162, reqId 114: Historical Market Data Service error message:API scanner subscription cancelled: 114
+2021-11-30 10:46:20,958 INFO Warning 165, reqId 115: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:20,959 ERROR Error 162, reqId 115: Historical Market Data Service error message:API scanner subscription cancelled: 115
+2021-11-30 10:46:21,506 INFO Warning 165, reqId 116: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:21,506 ERROR Error 162, reqId 116: Historical Market Data Service error message:API scanner subscription cancelled: 116
+2021-11-30 10:46:22,080 INFO Warning 165, reqId 117: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:22,081 ERROR Error 162, reqId 117: Historical Market Data Service error message:API scanner subscription cancelled: 117
+2021-11-30 10:46:22,633 INFO Warning 165, reqId 118: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:22,634 ERROR Error 162, reqId 118: Historical Market Data Service error message:API scanner subscription cancelled: 118
+2021-11-30 10:46:23,286 INFO Warning 165, reqId 119: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:23,287 ERROR Error 162, reqId 119: Historical Market Data Service error message:API scanner subscription cancelled: 119
+2021-11-30 10:46:23,830 INFO Warning 165, reqId 120: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:23,831 ERROR Error 162, reqId 120: Historical Market Data Service error message:API scanner subscription cancelled: 120
+2021-11-30 10:46:24,374 INFO Warning 165, reqId 121: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:24,375 ERROR Error 162, reqId 121: Historical Market Data Service error message:API scanner subscription cancelled: 121
+2021-11-30 10:46:24,932 INFO Warning 165, reqId 122: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:24,933 ERROR Error 162, reqId 122: Historical Market Data Service error message:API scanner subscription cancelled: 122
+2021-11-30 10:46:25,558 INFO Warning 165, reqId 123: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:25,559 ERROR Error 162, reqId 123: Historical Market Data Service error message:API scanner subscription cancelled: 123
+2021-11-30 10:46:26,218 INFO Warning 165, reqId 124: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:26,219 ERROR Error 162, reqId 124: Historical Market Data Service error message:API scanner subscription cancelled: 124
+2021-11-30 10:46:26,765 INFO Warning 165, reqId 125: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:26,766 ERROR Error 162, reqId 125: Historical Market Data Service error message:API scanner subscription cancelled: 125
+2021-11-30 10:46:27,323 INFO Warning 165, reqId 126: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:27,324 ERROR Error 162, reqId 126: Historical Market Data Service error message:API scanner subscription cancelled: 126
+2021-11-30 10:46:27,865 INFO Warning 165, reqId 127: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:27,865 ERROR Error 162, reqId 127: Historical Market Data Service error message:API scanner subscription cancelled: 127
+2021-11-30 10:46:28,427 INFO Warning 165, reqId 128: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:28,428 ERROR Error 162, reqId 128: Historical Market Data Service error message:API scanner subscription cancelled: 128
+2021-11-30 10:46:28,975 INFO Warning 165, reqId 129: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:28,976 ERROR Error 162, reqId 129: Historical Market Data Service error message:API scanner subscription cancelled: 129
+2021-11-30 10:46:29,539 INFO Warning 165, reqId 130: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:29,540 ERROR Error 162, reqId 130: Historical Market Data Service error message:API scanner subscription cancelled: 130
+2021-11-30 10:46:30,081 INFO Warning 165, reqId 131: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:30,082 ERROR Error 162, reqId 131: Historical Market Data Service error message:API scanner subscription cancelled: 131
+2021-11-30 10:46:30,643 INFO Warning 165, reqId 132: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:30,644 ERROR Error 162, reqId 132: Historical Market Data Service error message:API scanner subscription cancelled: 132
+2021-11-30 10:46:31,354 INFO Warning 165, reqId 133: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:31,355 ERROR Error 162, reqId 133: Historical Market Data Service error message:API scanner subscription cancelled: 133
+2021-11-30 10:46:32,061 INFO Warning 165, reqId 134: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:32,062 ERROR Error 162, reqId 134: Historical Market Data Service error message:API scanner subscription cancelled: 134
+2021-11-30 10:46:32,625 INFO Warning 165, reqId 135: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:32,625 ERROR Error 162, reqId 135: Historical Market Data Service error message:API scanner subscription cancelled: 135
+2021-11-30 10:46:33,168 INFO Warning 165, reqId 136: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:33,169 ERROR Error 162, reqId 136: Historical Market Data Service error message:API scanner subscription cancelled: 136
+2021-11-30 10:46:33,725 INFO Warning 165, reqId 137: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:33,726 ERROR Error 162, reqId 137: Historical Market Data Service error message:API scanner subscription cancelled: 137
+2021-11-30 10:46:34,420 INFO Warning 165, reqId 138: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:34,421 ERROR Error 162, reqId 138: Historical Market Data Service error message:API scanner subscription cancelled: 138
+2021-11-30 10:46:34,994 INFO Warning 165, reqId 139: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:34,995 ERROR Error 162, reqId 139: Historical Market Data Service error message:API scanner subscription cancelled: 139
+2021-11-30 10:46:35,541 INFO Warning 165, reqId 140: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:35,542 ERROR Error 162, reqId 140: Historical Market Data Service error message:API scanner subscription cancelled: 140
+2021-11-30 10:46:36,077 INFO Warning 165, reqId 141: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:36,077 ERROR Error 162, reqId 141: Historical Market Data Service error message:API scanner subscription cancelled: 141
+2021-11-30 10:46:36,634 INFO Warning 165, reqId 142: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:36,635 ERROR Error 162, reqId 142: Historical Market Data Service error message:API scanner subscription cancelled: 142
+2021-11-30 10:46:37,203 INFO Warning 165, reqId 143: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:37,204 ERROR Error 162, reqId 143: Historical Market Data Service error message:API scanner subscription cancelled: 143
+2021-11-30 10:46:37,785 INFO Warning 165, reqId 144: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:37,786 ERROR Error 162, reqId 144: Historical Market Data Service error message:API scanner subscription cancelled: 144
+2021-11-30 10:46:38,419 INFO Warning 165, reqId 145: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:38,420 ERROR Error 162, reqId 145: Historical Market Data Service error message:API scanner subscription cancelled: 145
+2021-11-30 10:46:38,993 INFO Warning 165, reqId 146: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:38,994 ERROR Error 162, reqId 146: Historical Market Data Service error message:API scanner subscription cancelled: 146
+2021-11-30 10:46:39,584 INFO Warning 165, reqId 147: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:39,585 ERROR Error 162, reqId 147: Historical Market Data Service error message:API scanner subscription cancelled: 147
+2021-11-30 10:46:40,222 INFO Warning 165, reqId 148: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:40,223 ERROR Error 162, reqId 148: Historical Market Data Service error message:API scanner subscription cancelled: 148
+2021-11-30 10:46:40,739 INFO Warning 165, reqId 149: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:40,740 ERROR Error 162, reqId 149: Historical Market Data Service error message:API scanner subscription cancelled: 149
+2021-11-30 10:46:41,297 INFO Warning 165, reqId 150: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:41,299 ERROR Error 162, reqId 150: Historical Market Data Service error message:API scanner subscription cancelled: 150
+2021-11-30 10:46:41,905 INFO Warning 165, reqId 151: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:41,906 ERROR Error 162, reqId 151: Historical Market Data Service error message:API scanner subscription cancelled: 151
+2021-11-30 10:46:42,548 INFO Warning 165, reqId 152: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:42,549 ERROR Error 162, reqId 152: Historical Market Data Service error message:API scanner subscription cancelled: 152
+2021-11-30 10:46:43,115 INFO Warning 165, reqId 153: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:43,116 ERROR Error 162, reqId 153: Historical Market Data Service error message:API scanner subscription cancelled: 153
+2021-11-30 10:46:43,673 INFO Warning 165, reqId 154: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:43,673 ERROR Error 162, reqId 154: Historical Market Data Service error message:API scanner subscription cancelled: 154
+2021-11-30 10:46:44,218 INFO Warning 165, reqId 155: Historical Market Data Service query message:no items retrieved
+2021-11-30 10:46:44,219 ERROR Error 162, reqId 155: Historical Market Data Service error message:API scanner subscription cancelled: 155
