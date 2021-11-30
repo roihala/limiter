@@ -23,8 +23,7 @@ class ConfigFileError(Exception):
 
 
 class Main(object):
-    # TODO: Exception handling!!!
-    IGNORE_ERRORS = [162]
+    IGNORE_ERRORS = [162, 165]
 
     def __init__(self, loop):
         args = self.create_parser().parse_args()
@@ -37,9 +36,9 @@ class Main(object):
 
         ib.RequestTimeout = 10
         ib.connect('127.0.0.1', 7497, clientId=1)
-        ib.errorEvent += self.__ib_callback
+        ib.errorEvent += self.__ib_error
         self.screener = Screener(ib, self.config)
-        self.tws = Tws(ib, self.config, self.screener)
+        self.tws = Tws(ib, self.config, self.screener, self.loop)
         self.gui = Gui(self.loop, self.config, self.tws)
 
     def create_parser(self):
@@ -81,7 +80,7 @@ class Main(object):
                 title='Config file error')
             raise ConfigFileError(e)
 
-    def __ib_callback(self, reqId, errorCode, errorString, *args):
+    def __ib_error(self, reqId, errorCode, errorString, *args):
         if errorCode in self.IGNORE_ERRORS:
             return
         messagebox.showerror(

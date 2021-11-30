@@ -21,8 +21,8 @@ class Gui(tk.Tk):
         main_panel = tk.PanedWindow(orient=tk.VERTICAL)
         main_panel.pack(fill=tk.BOTH, expand=1)
 
-        self.screener = Screener(main_panel, self.config, self.tws)
-        self.controller = Controller(main_panel, self.config, self.tws)
+        self.screener = Screener(main_panel, self.config, self.tws, self.loop)
+        self.controller = Controller(main_panel, self.config, self.tws, self.loop)
 
         root = self
         root.protocol("WM_DELETE_WINDOW", self.loop.stop)

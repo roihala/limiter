@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class SellButtons(BaseModel):
     values: List[int]
-    limit_gap: int
+    limit: int
 
 
 class PresaleComboBox(BaseModel):
@@ -13,8 +13,13 @@ class PresaleComboBox(BaseModel):
     quantity_percents: int
 
 
+class AutoStopLoss(BaseModel):
+    limit: int
+    stop_percents: int
+
+
 class ScreenerBuy(BaseModel):
-    limit_gap: int
+    limit: int
     position_size_usd: int
 
 
@@ -34,3 +39,4 @@ class Screener(BaseModel):
 class Schema(BaseModel):
     buttons: Buttons
     screener: Screener
+    auto_stop_loss: AutoStopLoss

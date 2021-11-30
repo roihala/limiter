@@ -1,3 +1,4 @@
+import asyncio
 from tkinter import ttk
 from tkinter import *
 from tkinter import messagebox
@@ -5,13 +6,13 @@ from functools import partial
 
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
-from src.tws.tws import Tws, UnexistingTradeException
 
 
 class Controller(object):
     PRESALE_DEFAULT_VALUE = 0
 
-    def __init__(self, root, config: Schema, tws):
+    def __init__(self, root, config: Schema, tws, loop):
+        self.loop = loop
         self.root = root
         self.config = config
         self.tws = tws
@@ -55,18 +56,8 @@ class Controller(object):
             presale_box.grid(column=4, row=row_index, pady=3)
             self.existing_positions.add(ticker)
 
-    def __sell_onclick(self, ticker, precents, *args):
-        try:
-            self.tws.sell_button(ticker, precents)
-        # TODO:  is necessary?
-        except UnexistingTradeException:
-            messagebox.showerror(
-                message=f"There is no open trade for ticker: {ticker}",
-                title=f"Couldn't sell {ticker}")
-        except Exception as e:
-            messagebox.showerror(
-                message=f"General failure:\n{e}",
-                title=f"Couldn't sell {ticker}")
+    def __sell_onclick(self, ticker, percents, *args):
+        self.loop.create_task(self.tws.sell_button(ticker, percents))
 
     def __presale_popup(self, ticker, *args):
         var = self.presale_vars[ticker]
@@ -74,7 +65,7 @@ class Controller(object):
         if messagebox.askyesno(
                 message=f'Are you sure you want to presale {ticker} at {var.get()}%?',
                 icon='question', title='Predefined sell'):
-            self.tws.presale_combobox(ticker, var.get())
+            self.loop.create_task(self.tws.presale_combobox(ticker, var.get()))
         else:
-            # TODO: Remove existing presales?
             var.set(self.PRESALE_DEFAULT_VALUE)
+            self.tws.remove_existing_presale(ticker)

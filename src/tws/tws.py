@@ -1,7 +1,4 @@
 import logging
-import os
-from _queue import Empty
-from tkinter import messagebox
 
 import ib_insync
 import asyncio
@@ -12,18 +9,19 @@ from config.schema import Schema
 from tws import Screener
 
 
-class UnexistingTradeException(Exception):
-    pass
+class UnexistingPositionException(Exception):
+    def __init__(self, ticker, *args, **kwargs):
+        self.ticker = ticker
 
 
 class Tws(object):
-    def __init__(self, ib: ib_insync.ib.IB, config: Schema, screener: Screener):
+    def __init__(self, ib: ib_insync.ib.IB, config: Schema, screener: Screener, loop):
+        ib.updatePortfolioEvent += self.update_portfolio_event
+        ib.cancelOrderEvent += self.order_cancel_event
         self.ib = ib
         self.config = config
         self.screener = screener
-
-    def get_existing_positions(self):
-        return [trade.contract.symbol for trade in self.ib.openTrades()]
+        self.loop = loop
 
     async def screener_buy(self, ticker):
         logging.getLogger('Main').info(f'buying {ticker}')
@@ -37,55 +35,97 @@ class Tws(object):
             await asyncio.sleep(0.01)
 
         quantity = int(self.config.buttons.screener_buy.position_size_usd / m_data.last)
-        limit_price = m_data.last + self.config.buttons.screener_buy.limit_gap
+        limit_price = m_data.last + self.config.buttons.screener_buy.limit
         order = LimitOrder('BUY', quantity, limit_price, outsideRth=True)
 
-        order = self.ib.placeOrder(contract, order)
+        self.ib.placeOrder(contract, order)
 
-        # TODO: if didn't work decorator
-        while order.orderStatus.status != 'Submitted':
-            await asyncio.sleep(0.01)
-
-    def sell_button(self, ticker, percents):
-        m_data = self.ib.reqMktData(self.__get_trade(ticker).contract)
+    async def sell_button(self, ticker, percents):
+        contract = self.__get_portfolio_item(ticker).contract
+        contract.exchange = 'SMART'
+        m_data = self.ib.reqMktData(contract)
         # Wait until data is in.
         while m_data.last != m_data.last:
-            self.ib.sleep(0.01)
-
-        limit_price = m_data.last + self.config.buttons.sell_buttons.limit_gap
+            await asyncio.sleep(0.01)
+        limit_price = m_data.last + self.config.buttons.sell_buttons.limit
         self.__partial_sell(ticker, percents, limit_price)
 
-    def presale_combobox(self, ticker, change_percents):
-        m_data = self.ib.reqMktData(self.__get_trade(ticker).contract)
+    async def presale_combobox(self, ticker, change_percents):
+        m_data = self.ib.reqMktData(self.__get_portfolio_item(ticker).contract)
         # Wait until data is in.
         while m_data.last != m_data.last:
-            self.ib.sleep(0.01)
+            await asyncio.sleep(0.01)
 
         limit_price = (change_percents * 0.01 * m_data.last) + m_data.last
         self.__partial_sell(ticker, self.config.buttons.presale_combobox.quantity_percents, limit_price)
 
-    def __partial_sell(self, ticker, quantity_precents, limit_price):
+    async def __stop_loss(self, portfolio_item: ib_insync.objects.PortfolioItem):
+        if portfolio_item.position == 0:
+            return
+
+        # Handle existing stop limit
+        for trade in self.ib.openTrades():
+            if trade.contract == portfolio_item.contract \
+                    and trade.order.orderType == 'STP LMT' \
+                    and trade.order.action == 'SELL':
+                if trade.order.totalQuantity == portfolio_item.position:
+                    # Existing Stop limit is good for us
+                    return
+                else:
+                    self.ib.cancelOrder(trade.order)
+                    while trade.orderStatus != 'Cancelled':
+                        await asyncio.sleep(0.01)
+
+        portfolio_item.contract.exchange = 'SMART'
+        m_data = self.ib.reqMktData(portfolio_item.contract)
+        # Wait until data is in.
+        while m_data.last != m_data.last:
+            await asyncio.sleep(0.01)
+
+        limit_price = m_data.last + self.config.auto_stop_loss.limit
+        stop_price = round(portfolio_item.averageCost - (
+                0.01 * self.config.auto_stop_loss.stop_percents * portfolio_item.averageCost), ndigits=2)
+        order = ib_insync.order.StopLimitOrder('SELL',
+                                               totalQuantity=int(portfolio_item.position),
+                                               lmtPrice=limit_price,
+                                               stopPrice=stop_price,
+                                               outsideRth=True)
+
+        self.ib.placeOrder(portfolio_item.contract, order)
+
+    def remove_existing_presale(self, ticker):
+        for trade in self.ib.openTrades():
+            if trade.contract.symbol == ticker and \
+                    trade.order.orderType == 'LMT' and \
+                    trade.order.action == 'SELL':
+                self.ib.cancelOrder(trade.order)
+
+    def get_existing_positions(self):
+        return [portfolio_item.contract.symbol for portfolio_item in self.ib.portfolio()]
+
+    def update_portfolio_event(self, portfolio_item: ib_insync.objects.PortfolioItem, *args):
+        self.loop.create_task(self.__stop_loss(portfolio_item))
+
+    def order_cancel_event(self, trade: ib_insync.order.Trade, *args):
+        if trade.order.orderType == 'STP LMT' and trade.order.action == 'SELL':
+            return
+        self.ib.errorEvent.emit(trade.order.orderId, None, f"Order: {trade.order.action} {trade.order.orderType} canceled for {trade.contract.symbol}")
+
+    def __partial_sell(self, ticker, quantity_percents, limit_price):
         """
         :param ticker: ticker
-        :param quantity_precents: % of shares to sell
+        :param quantity_percents: % of shares to sell
         :param limit_price: price
         """
-        # TODO: Update corresponding stop limit
-        self.__validate_ticker(ticker)
-        trade = self.__get_trade(ticker)
-        order = LimitOrder('SELL', (quantity_precents * 0.01) * trade.order.totalQuantity, limit_price)
-        # TODO: Examine return value?
-        self.ib.placeOrder(trade.contract, order)
+        portfolio_item = self.__get_portfolio_item(ticker)
+        quantity = int((quantity_percents * 0.01) * portfolio_item.position)
+        order = LimitOrder('SELL', quantity, limit_price, outsideRth=True)
+        self.ib.placeOrder(portfolio_item.contract, order)
 
-    def __get_trade(self, ticker) -> ib_insync.order.Trade:
-        if self.__validate_ticker(ticker):
-            for trade in self.ib.openTrades():
-                if trade.contract.symbol == ticker:
-                    return trade
+    def __get_portfolio_item(self, ticker) -> ib_insync.objects.PortfolioItem:
+        for portfolio_item in self.ib.portfolio():
+            if portfolio_item.contract.symbol == ticker and portfolio_item.position > 0:
+                return portfolio_item
 
-    def __validate_ticker(self, ticker):
-        # TODO: Check if quantity > 0 and is active
-        if ticker not in self.get_existing_positions():
-            raise UnexistingTradeException()
-
-        return True
+        self.ib.errorEvent.emit(None, None, f"Requirements unmet for {ticker} in portfolio")
+        raise UnexistingPositionException(ticker)

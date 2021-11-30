@@ -9,7 +9,8 @@ import tws
 
 
 class Screener(object):
-    def __init__(self, root, config: Schema, tws_instance: tws.Tws):
+    def __init__(self, root, config: Schema, tws_instance: tws.Tws, loop):
+        self.loop = loop
         self.root = root
         self.config = config
         self.tws = tws_instance
@@ -26,8 +27,7 @@ class Screener(object):
         return self.frame
 
     def __buy_onclick(self, ticker):
-        loop = asyncio.get_event_loop()
-        loop.create_task(self.tws.screener_buy(ticker))
+        self.loop.create_task(self.tws.screener_buy(ticker))
 
     def draw_grid(self, tickers):
         new_tickers = [ticker for ticker in tickers if ticker not in self.grid_tickers]
