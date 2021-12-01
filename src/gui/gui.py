@@ -1,4 +1,5 @@
 import os
+import sys
 import tkinter as tk
 
 from src.gui.controller import Controller
@@ -26,7 +27,7 @@ class Gui(tk.Tk):
 
         root = self
         root.protocol("WM_DELETE_WINDOW", self.loop.stop)
-        root.iconbitmap(os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), 'lib', 'favicon.ico'))
+        # root.iconbitmap(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'images', 'favicon.ico'))
         root.title("Stocker")
         root.columnconfigure(0, weight=1)
         root.columnconfigure(0, weight=1)

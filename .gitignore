@@ -1,3 +1,4 @@
 .idea/
 **/__pycache__/
 src/games/
+limiter.egg-info/

@@ -1,2 +1,2 @@
-from tws.screener import Screener
-from tws.tws import Tws
+from src.tws.screener import Screener
+from src.tws.tws import Tws

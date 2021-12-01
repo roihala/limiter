@@ -3,19 +3,19 @@ import json
 import logging
 import os
 import argparse
+import sys
 from json import JSONDecodeError
 from tkinter import messagebox
 
 import ib_insync
 from ib_insync import IB
 from pydantic import ValidationError
-
 from config.schema import Schema
-from gui.gui import Gui
+from src.gui.gui import Gui
 from src.tws.tws import Tws
-from tws.screener import Screener
+from src.tws.screener import Screener
 
-CONFIG_FILE_PATH = os.path.join(os.path.dirname(__file__), 'config', 'config.json')
+CONFIG_FILE_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'config', 'config.json')
 
 
 class ConfigFileError(Exception):
@@ -23,8 +23,6 @@ class ConfigFileError(Exception):
 
 
 class Main(object):
-    IGNORE_ERRORS = [162, 165]
-
     def __init__(self, loop):
         args = self.create_parser().parse_args()
         os.environ['DEBUG'] = str(args.debug)
@@ -32,7 +30,7 @@ class Main(object):
             logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
         else:
             logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
-                                filename=os.path.join(os.path.dirname(__file__), 'logs', 'log.log'))
+                                filename=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'logs', 'log.log'))
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config = self._init_config()
         self.loop = loop
@@ -40,7 +38,6 @@ class Main(object):
 
         ib.RequestTimeout = 10
         ib.connect('127.0.0.1', 7497, clientId=1)
-        ib.errorEvent += self.__ib_error
         self.screener = Screener(ib, self.config)
         self.tws = Tws(ib, self.config, self.screener, self.loop)
         self.gui = Gui(self.loop, self.config, self.tws)
@@ -83,13 +80,6 @@ class Main(object):
                 message=f"General config file error:\n{e}",
                 title='Config file error')
             raise ConfigFileError(e)
-
-    def __ib_error(self, reqId, errorCode, errorString, *args):
-        if errorCode in self.IGNORE_ERRORS:
-            return
-        messagebox.showerror(
-            message=f"{errorString}\n Error code: {errorCode}, Request ID: {reqId}, args: {args}",
-            title="Couldn't perform API action")
 
 
 if __name__ == '__main__':

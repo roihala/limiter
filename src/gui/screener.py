@@ -1,11 +1,9 @@
-import asyncio
-import os
 from functools import partial
 from tkinter import ttk
 
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
-import tws
+from src import tws
 
 
 class Screener(object):

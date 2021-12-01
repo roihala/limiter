@@ -1,3 +1,5 @@
+import logging
+
 import ib_insync
 from ib_insync import TagValue, ScannerSubscription
 
@@ -11,19 +13,23 @@ class Screener(object):
         self.screener_results = []
 
     def scan(self):
-        sub = ScannerSubscription(
-            instrument='STK',
-            locationCode='STK.US.MAJOR',
-            scanCode='TOP_PERC_GAIN')
+        try:
+            sub = ScannerSubscription(
+                instrument='STK',
+                locationCode='STK.US.MAJOR',
+                scanCode='TOP_PERC_GAIN')
 
-        tagValues = [
-            TagValue("changePercAbove", str(self.config.screener.change_percents)),
-            TagValue('priceAbove', str(self.config.screener.above_price)),
-            TagValue('priceBelow', str(self.config.screener.below_price)),
-            TagValue('volumeAbove', str(self.config.screener.above_volume))]
+            tagValues = [
+                TagValue("changePercAbove", str(self.config.screener.change_percents)),
+                TagValue('priceAbove', str(self.config.screener.above_price)),
+                TagValue('priceBelow', str(self.config.screener.below_price)),
+                TagValue('volumeAbove', str(self.config.screener.above_volume))]
 
-        screener_results = self.ib.reqScannerData(sub, scannerSubscriptionFilterOptions=tagValues)
-        self._update_screener_results(screener_results)
+            screener_results = self.ib.reqScannerData(sub, scannerSubscriptionFilterOptions=tagValues)
+            self._update_screener_results(screener_results)
+        except Exception as e:
+            logging.getLogger('Main').warning("Scan failed")
+            logging.getLogger('Main').exception(e)
 
     def get_screener_results(self):
         return [_.contractDetails.contract.symbol for _ in self.screener_results]
