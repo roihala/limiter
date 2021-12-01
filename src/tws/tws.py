@@ -24,7 +24,7 @@ class Tws(object):
     def __init__(self, ib: ib_insync.ib.IB, config: Schema, screener: Screener, loop):
         ib.updatePortfolioEvent += self.update_portfolio_event
         ib.errorEvent += self.error_event
-        ib.orderStatusEvent += self.test_event
+        ib.orderStatusEvent += self.order_status_event
         self.ib = ib
         self.config = config
         self.screener = screener
@@ -79,8 +79,7 @@ class Tws(object):
         return
         # self.loop.create_task(self.__stop_loss(portfolio_item))
 
-    def test_event(self, trade: ib_insync.order.Trade, *args):
-        print('TEST', trade.orderStatus.status, trade)
+    def order_status_event(self, trade: ib_insync.order.Trade, *args):
         if trade.orderStatus.status == 'Filled':
             self.loop.create_task(self.__stop_loss(trade))
         elif trade.orderStatus.status == 'Cancelled':
@@ -126,7 +125,7 @@ class Tws(object):
             await asyncio.sleep(0.01)
 
         limit_price = m_data.last + self.config.auto_stop_loss.limit
-        stop_price = portfolio_item.averageCost - (
+        stop_price = portfolio_item.averageCost + (
                 0.01 * self.config.auto_stop_loss.stop_percents * portfolio_item.averageCost)
         order = ib_insync.order.StopLimitOrder('SELL',
                                                totalQuantity=int(portfolio_item.position),

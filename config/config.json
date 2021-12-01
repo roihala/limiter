@@ -9,7 +9,7 @@
       "quantity_percents": 10
     },
     "screener_buy": {
-      "limit": 3,
+      "limit": 0.2,
       "position_size_usd": 10000
     }
   },
@@ -21,6 +21,6 @@
   },
   "auto_stop_loss": {
         "limit": 5,
-        "stop_percents": 10
+        "stop_percents": -10
       }
 }
