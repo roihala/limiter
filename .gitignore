@@ -3,3 +3,4 @@
 src/games/
 limiter.egg-info/
 dist/
+log

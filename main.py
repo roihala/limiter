@@ -16,6 +16,7 @@ from src.tws.tws import Tws
 from src.tws.screener import Screener
 
 CONFIG_FILE_PATH = os.path.join(os.path.dirname(sys.argv[0]), 'config', 'config.json')
+LOGS_DIR = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'log')
 
 
 class ConfigFileError(Exception):
@@ -25,17 +26,17 @@ class ConfigFileError(Exception):
 class Main(object):
     def __init__(self, loop):
         args = self.create_parser().parse_args()
-        os.environ['DEBUG'] = str(args.debug)
-        if os.environ['DEBUG']:
+        os.environ['ENV'] = 'DEBUG' if args.debug else 'PROD'
+        if os.environ['ENV'] == 'DEBUG':
             logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
         else:
+            os.makedirs(LOGS_DIR, exist_ok=True)
             logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s',
-                                filename=os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'logs', 'log.log'))
+                                filename=os.path.join(LOGS_DIR, 'log.log'))
         self.logger = logging.getLogger(self.__class__.__name__)
         self.config = self._init_config()
         self.loop = loop
         ib = IB()
-
         ib.RequestTimeout = 10
         ib.connect('127.0.0.1', 7497, clientId=1)
         self.screener = Screener(ib, self.config)
