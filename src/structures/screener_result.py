@@ -1,4 +1,4 @@
-from pydantic import BaseModel, constr, validator
+from pydantic import BaseModel, validator
 
 
 class ScreenerResult(BaseModel):
@@ -7,7 +7,6 @@ class ScreenerResult(BaseModel):
     # Volume rounded to millions
     volume: float
     change_percents: float
-
 
     @validator('last_value', 'change_percents', 'volume')
     def result_check(cls, v):

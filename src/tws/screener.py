@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from tkinter import messagebox
 from typing import Dict
 
 import ib_insync
@@ -16,6 +17,7 @@ class Screener(object):
         self.ib = ib
         self.config = config
         self.loop = loop
+        self.first_scan = True
 
     def scan(self):
         try:
@@ -38,7 +40,13 @@ class Screener(object):
 
     def _update_screener_results(self, screener_results):
         for result in screener_results:
+            if result.contractDetails.contract.symbol not in self.screener_results \
+                    and not self.first_scan:
+                messagebox.showinfo(title='Scanner Detected ticker',
+                                    message=f'Detected {result.contractDetails.contract.symbol}')
             self.loop.create_task(self.__update_screener_results(result.contractDetails.contract))
+
+        self.first_scan = False
 
     async def __update_screener_results(self, contract: ib_insync.contract.Contract):
         m_data = self.ib.reqMktData(contract)

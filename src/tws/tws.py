@@ -18,6 +18,8 @@ class UnexistingPositionException(Exception):
 
 
 class Tws(object):
+    LIMIT_REJECTION_TEXT = 'We cannot accept an order at the limit price you selected.'
+    MIN_LIMIT_GAP = 0.01
     MAX_ACTIVE_ORDERS = 200
     IGNORE_ERRORS = [162, 165]
 
@@ -32,7 +34,7 @@ class Tws(object):
         self.loop = loop
         self.trades: deque[ib_insync.order.Trade] = deque([_ for _ in self.ib.openTrades()], maxlen=self.MAX_ACTIVE_ORDERS)
 
-    async def screener_buy(self, ticker):
+    async def screener_buy(self, ticker, rejected_trade: ib_insync.order.Order = None):
         contract = Stock(ticker, 'SMART', 'USD')
 
         m_data = self.ib.reqMktData(contract)
@@ -42,7 +44,17 @@ class Tws(object):
             await asyncio.sleep(0.01)
 
         quantity = self.config.buttons.screener_buy.position_size_usd / m_data.last
-        limit_price = m_data.last + self.config.buttons.screener_buy.limit
+        if rejected_trade:
+            # Only for rejected orders
+            limit_gap = (rejected_trade.lmtPrice - m_data.last) / 2
+
+            # Preventing option for infinite cancels
+            if limit_gap < self.MIN_LIMIT_GAP:
+                return
+
+            limit_price = (rejected_trade.lmtPrice - m_data.last) / 2 + m_data.last
+        else:
+            limit_price = m_data.last + self.config.buttons.screener_buy.limit
         order = LimitOrder('BUY', int(quantity), round(limit_price, ndigits=2), outsideRth=True)
 
         self.trades.append(self.ib.placeOrder(contract, order))
@@ -85,6 +97,12 @@ class Tws(object):
     def order_cancel_event(self, trade: ib_insync.order.Trade, error_string: str = ''):
         if trade.order.orderType == 'STP LMT' and trade.order.action == 'SELL':
             return
+
+        error_reason = error_string.split('reason:')
+        if len(error_reason) > 1 and error_reason[1].startswith(self.LIMIT_REJECTION_TEXT):
+            self.loop.create_task(self.screener_buy(trade.contract.symbol, trade.order))
+
+
         message = f'{trade.order.action} {trade.order.orderType} order canceled for {trade.contract.symbol}'
         message = message if not error_string else message + '\n' + error_string
         messagebox.showerror(
