@@ -44,7 +44,7 @@ class Controller(object):
             # Sell buttons
             for index, value in enumerate(self.config.buttons.sell_buttons.values):
                 button = ttk.Button(self.frame.scrollable_frame,
-                                    text=f'sell {value}%',
+                                    text=f'SELL {value}%',
                                     command=partial(self.__sell_onclick, ticker, value))
                 button.grid(column=index + 1, row=row_index, pady=3)
 

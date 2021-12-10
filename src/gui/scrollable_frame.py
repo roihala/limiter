@@ -26,11 +26,9 @@ class ScrollableFrame(ttk.Frame):
         if title:
             ttk.Label(self, text=title).grid(column=0, row=0, sticky='N')
             self.canvas.grid(column=0, row=0, sticky='NWSE', pady=20)
-            # canvas.pack(side="left", fill="both", expand=True)
             scrollbar.grid(column=1, row=0, sticky='NWSE', pady=20)
         else:
             self.canvas.grid(column=0, row=0, sticky='NWSE')
-            # canvas.pack(side="left", fill="both", expand=True)
             scrollbar.grid(column=1, row=0, sticky='NWSE')
 
     def _on_mousewheel(self, event):

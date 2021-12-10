@@ -22,9 +22,10 @@ class Tws(object):
     IGNORE_ERRORS = [162, 165]
 
     def __init__(self, ib: ib_insync.ib.IB, config: Schema, screener: Screener, loop):
-        ib.updatePortfolioEvent += self.update_portfolio_event
         ib.errorEvent += self.error_event
         ib.orderStatusEvent += self.order_status_event
+        ib.disconnectedEvent += self.disconnect_event
+
         self.ib = ib
         self.config = config
         self.screener = screener
@@ -75,9 +76,8 @@ class Tws(object):
     def get_existing_positions(self):
         return [portfolio_item.contract.symbol for portfolio_item in self.ib.portfolio()]
 
-    def update_portfolio_event(self, portfolio_item: ib_insync.objects.PortfolioItem, *args):
-        return
-        # self.loop.create_task(self.__stop_loss(portfolio_item))
+    def disconnect_event(self):
+        self.loop.stop()
 
     def order_status_event(self, trade: ib_insync.order.Trade, *args):
         if trade.orderStatus.status == 'Filled':
@@ -95,7 +95,8 @@ class Tws(object):
             title="Order canceled")
 
     def error_event(self, reqId, errorCode, errorString, *args):
-        if errorCode in self.IGNORE_ERRORS:
+        # 2XXX errors are warnings
+        if errorCode in self.IGNORE_ERRORS or int(errorCode / 1000) == 2:
             return
         if errorCode == 202:
             trade = self.__get_trade_by_reqid(reqId)

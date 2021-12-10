@@ -2,7 +2,7 @@
   "buttons": {
     "sell_buttons": {
       "values": [10, 20, 50],
-      "limit": -3
+      "limit": -0.2
     },
     "presale_combobox": {
       "values": [10, 20, 50],
@@ -10,13 +10,13 @@
     },
     "screener_buy": {
       "limit": 0.2,
-      "position_size_usd": 10000
+      "position_size_usd": 5000
     }
   },
   "screener":  {
-    "above_price": 5,
-    "below_price": 50,
-    "change_percents": 20,
+    "above_price": 0,
+    "below_price": 9999,
+    "change_percents": 35,
     "above_volume": 1000000
   },
   "auto_stop_loss": {

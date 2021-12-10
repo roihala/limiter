@@ -1,6 +1,7 @@
 import os
 import sys
 import tkinter as tk
+from tkinter import ttk
 
 from src.gui.controller import Controller
 from src.gui.screener import Screener
@@ -25,12 +26,11 @@ class Gui(tk.Tk):
         self.screener = Screener(main_panel, self.config, self.tws, self.loop)
         self.controller = Controller(main_panel, self.config, self.tws, self.loop)
 
-        root = self
-        root.protocol("WM_DELETE_WINDOW", self.loop.stop)
+        self.protocol("WM_DELETE_WINDOW", self.loop.stop)
         # root.iconbitmap(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'images', 'favicon.ico'))
-        root.title("Stocker")
-        root.columnconfigure(0, weight=1)
-        root.columnconfigure(0, weight=1)
+        self.title("Stocker")
+        self.columnconfigure(0, weight=1)
+        self.columnconfigure(0, weight=1)
 
         frame = self.screener.frame
         main_panel.add(frame)
