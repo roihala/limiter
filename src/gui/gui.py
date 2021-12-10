@@ -1,3 +1,4 @@
+import logging
 import os
 import sys
 import tkinter as tk
@@ -40,7 +41,7 @@ class Gui(tk.Tk):
 
     def update(self, **kwargs):
         if 'screener_results' in kwargs:
-            self.screener.draw_grid(tickers=kwargs['screener_results'])
+            self.screener.draw_grid(screener_results=kwargs['screener_results'])
         if 'positions' in kwargs:
             self.controller.draw_positions(tickers=kwargs['positions'])
 

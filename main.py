@@ -24,6 +24,9 @@ class ConfigFileError(Exception):
 
 
 class Main(object):
+    SCREENER_INTERVAL = 0.05
+    GUI_INTERVAL = 0.01
+
     def __init__(self, loop):
         args = self.create_parser().parse_args()
         os.environ['ENV'] = 'DEBUG' if args.debug else 'PROD'
@@ -39,7 +42,7 @@ class Main(object):
         ib = IB()
         ib.RequestTimeout = 10
         ib.connect('127.0.0.1', 7497, clientId=1)
-        self.screener = Screener(ib, self.config)
+        self.screener = Screener(ib, self.config, self.loop)
         self.tws = Tws(ib, self.config, self.screener, self.loop)
         self.gui = Gui(self.loop, self.config, self.tws)
 
@@ -51,14 +54,20 @@ class Main(object):
 
     def run(self):
         ib_insync.util.patchAsyncio()
-        self._updater()
+        self._gui_updater()
+        self._screener_updater()
         self.loop.run_forever()
 
-    def _updater(self):
-        self.gui.update(screener_results=self.screener.get_screener_results(),
+    def _gui_updater(self):
+        self.gui.update(screener_results=self.screener.screener_results,
                         positions=self.tws.get_existing_positions())
+
+        self.loop.call_later(self.GUI_INTERVAL, self._gui_updater)
+
+    def _screener_updater(self):
         self.screener.scan()
-        self.loop.call_later(0.005, self._updater)
+
+        self.loop.call_later(self.SCREENER_INTERVAL, self._screener_updater)
 
     def _init_config(self):
         f = open(CONFIG_FILE_PATH)
