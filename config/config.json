@@ -4,10 +4,6 @@
       "values": [10, 20, 50],
       "limit": -0.2
     },
-    "presale_combobox": {
-      "values": [10, 20, 50],
-      "quantity_percents": 10
-    },
     "screener_buy": {
       "limit": 0.2,
       "position_size_usd": 5000

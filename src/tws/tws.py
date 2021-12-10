@@ -47,24 +47,21 @@ class Tws(object):
 
         self.trades.append(self.ib.placeOrder(contract, order))
 
-    async def sell_button(self, ticker, percents):
+    async def sell_button(self, ticker, position_percents, change_percents: int = 0):
         contract = self.__get_portfolio_item(ticker).contract
         contract.exchange = 'SMART'
         m_data = self.ib.reqMktData(contract)
         # Wait until data is in.
         while m_data.last != m_data.last:
             await asyncio.sleep(0.01)
-        limit_price = m_data.last + self.config.buttons.sell_buttons.limit
-        self.__partial_sell(ticker, percents, limit_price)
 
-    async def presale_combobox(self, ticker, change_percents):
-        m_data = self.ib.reqMktData(self.__get_portfolio_item(ticker).contract)
-        # Wait until data is in.
-        while m_data.last != m_data.last:
-            await asyncio.sleep(0.01)
-
-        limit_price = (change_percents * 0.01 * m_data.last) + m_data.last
-        self.__partial_sell(ticker, self.config.buttons.presale_combobox.quantity_percents, limit_price)
+        if change_percents > 0:
+            limit_price = (change_percents * 0.01 * m_data.last) + m_data.last
+            self.__partial_sell(ticker, position_percents, limit_price)
+        else:
+            # TODO: stop limit
+            limit_price = m_data.last + self.config.buttons.sell_buttons.limit
+            self.__partial_sell(ticker, position_percents, limit_price)
 
     def remove_existing_presale(self, ticker):
         for trade in self.ib.openTrades():

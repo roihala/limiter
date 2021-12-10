@@ -17,6 +17,7 @@ class Controller(object):
         self.config = config
         self.tws = tws
         self.presale_vars = {}
+        self.presale_vars = {}
         self.existing_positions = set()
         self.frame = self._init_frame()
 
@@ -48,16 +49,23 @@ class Controller(object):
                                     command=partial(self.__sell_onclick, ticker, value))
                 button.grid(column=index + 1, row=row_index, pady=3)
 
-            # Presale combobox
-            self.presale_vars[ticker] = IntVar()
-            presale_box = ttk.Combobox(self.frame.scrollable_frame, textvariable=self.presale_vars[ticker])
-            presale_box['values'] = [0] + self.config.buttons.presale_combobox.values
-            presale_box.bind('<<ComboboxSelected>>', partial(self.__presale_popup, ticker))
-            presale_box.grid(column=4, row=row_index, pady=3)
+            # Presale percents
+            presale_entry = ttk.Entry(self.frame.scrollable_frame)
+            # Default value set to 0
+            presale_entry.insert(0, 0)
+            self.presale_vars[ticker] = presale_entry
+            presale_entry.grid(column=4, row=row_index)
+
             self.existing_positions.add(ticker)
 
     def __sell_onclick(self, ticker, percents, *args):
-        self.loop.create_task(self.tws.sell_button(ticker, percents))
+        value = self.presale_vars[ticker].get()
+        if self.__validate_positive_int(value):
+            self.loop.create_task(self.tws.sell_button(ticker, percents, int(value)))
+        else:
+            messagebox.showerror(
+                message=f"The presale percents of {ticker} should be a positive integer",
+                title="Couldn't sell")
 
     def __presale_popup(self, ticker, *args):
         var = self.presale_vars[ticker]
@@ -69,3 +77,12 @@ class Controller(object):
         else:
             var.set(self.PRESALE_DEFAULT_VALUE)
             self.tws.remove_existing_presale(ticker)
+
+    @staticmethod
+    def __validate_positive_int(val):
+        try:
+            if int(val) >= 0:
+                return True
+        except ValueError:
+            return False
+        return False

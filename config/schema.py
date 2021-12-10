@@ -7,12 +7,6 @@ class SellButtons(BaseModel):
     values: List[int]
     limit: int
 
-
-class PresaleComboBox(BaseModel):
-    values: List[int]
-    quantity_percents: int
-
-
 class AutoStopLoss(BaseModel):
     limit: int
     stop_percents: int
@@ -25,7 +19,6 @@ class ScreenerBuy(BaseModel):
 
 class Buttons(BaseModel):
     sell_buttons: SellButtons
-    presale_combobox: PresaleComboBox
     screener_buy: ScreenerBuy
 
 
