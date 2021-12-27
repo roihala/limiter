@@ -2,7 +2,8 @@
   "buttons": {
     "sell_buttons": {
       "values": [10, 20, 50],
-      "limit": -3
+      "limit": -3,
+      "stop": 0
     },
     "screener_buy": {
       "limit": 3,

@@ -6,7 +6,7 @@ from tkinter import messagebox
 import ib_insync
 import asyncio
 
-from ib_insync import LimitOrder, Stock
+from ib_insync import LimitOrder, Stock, StopLimitOrder
 
 from config.schema import Schema
 from src.tws import Screener
@@ -19,6 +19,7 @@ class UnexistingPositionException(Exception):
 
 class Tws(object):
     LIMIT_REJECTION_TEXT = 'We cannot accept an order at the limit price you selected.'
+    STOP_LIMIT_REJECTION_TEXT = 'We cannot accept your Stop Limit order because the Limit Price'
     MIN_LIMIT_GAP = 0.01
     MAX_ACTIVE_ORDERS = 200
     IGNORE_ERRORS = [162, 165]
@@ -32,9 +33,10 @@ class Tws(object):
         self.config = config
         self.screener = screener
         self.loop = loop
-        self.trades: deque[ib_insync.order.Trade] = deque([_ for _ in self.ib.openTrades()], maxlen=self.MAX_ACTIVE_ORDERS)
+        self.trades: deque[ib_insync.order.Trade] = deque([_ for _ in self.ib.openTrades()],
+                                                          maxlen=self.MAX_ACTIVE_ORDERS)
 
-    async def screener_buy(self, ticker, rejected_trade: ib_insync.order.Order = None):
+    async def screener_buy(self, ticker):
         contract = Stock(ticker, 'SMART', 'USD')
 
         m_data = self.ib.reqMktData(contract)
@@ -44,22 +46,17 @@ class Tws(object):
             await asyncio.sleep(0.01)
 
         quantity = self.config.buttons.screener_buy.position_size_usd / m_data.last
-        if rejected_trade:
-            # Only for rejected orders
-            limit_gap = (rejected_trade.lmtPrice - m_data.last) / 2
+        limit_price = m_data.last + self.config.buttons.screener_buy.limit
 
-            # Preventing option for infinite cancels
-            if limit_gap < self.MIN_LIMIT_GAP:
-                return
-
-            limit_price = (rejected_trade.lmtPrice - m_data.last) / 2 + m_data.last
-        else:
-            limit_price = m_data.last + self.config.buttons.screener_buy.limit
-        order = LimitOrder('BUY', int(quantity), round(limit_price, ndigits=2), outsideRth=True)
+        order = LimitOrder('BUY',
+                           int(quantity),
+                           round(limit_price, ndigits=2),
+                           outsideRth=True,
+                           orderRef='limiterBuy')
 
         self.trades.append(self.ib.placeOrder(contract, order))
 
-    async def sell_button(self, ticker, position_percents, change_percents: int = 0):
+    async def sell_button(self, ticker, position_percents, price_percents: int = 0):
         contract = self.__get_portfolio_item(ticker).contract
         contract.exchange = 'SMART'
         m_data = self.ib.reqMktData(contract)
@@ -67,13 +64,57 @@ class Tws(object):
         while m_data.last != m_data.last:
             await asyncio.sleep(0.01)
 
-        if change_percents > 0:
-            limit_price = (change_percents * 0.01 * m_data.last) + m_data.last
-            self.__partial_sell(ticker, position_percents, limit_price)
-        else:
+        if price_percents > 0:
+            limit_price = (price_percents * 0.01 * m_data.last) + m_data.last
+
+        # If price percents is set to 0 execute STP LMT command
+        elif price_percents == 0:
             # TODO: stop limit
             limit_price = m_data.last + self.config.buttons.sell_buttons.limit
-            self.__partial_sell(ticker, position_percents, limit_price)
+            stop_price = m_data.last + self.config.buttons.sell_buttons.stop
+            self.__partial_sell(ticker, position_percents, limit_price, stop_price)
+            return
+        else:
+            raise ValueError(f"Price percents should be 0 or higher, got {price_percents}!")
+
+        self.__partial_sell(ticker, position_percents, limit_price)
+
+    async def __handle__rejected_orders(self, rejected_trade: ib_insync.order.Trade):
+        m_data = self.ib.reqMktData(rejected_trade.contract)
+        # Wait until data is in.
+        while m_data.last != m_data.last:
+            await asyncio.sleep(0.01)
+
+        limit_gap = abs((rejected_trade.order.lmtPrice - m_data.last) / 2)
+        limit_price = limit_gap + m_data.last
+
+        # Preventing option for infinite cancels
+        if limit_gap < self.MIN_LIMIT_GAP:
+            return
+
+        if rejected_trade.order.orderRef == 'limiterBuy':
+            new_order = LimitOrder('BUY',
+                                   totalQuantity=rejected_trade.order.totalQuantity,
+                                   lmtPrice=round(limit_price, ndigits=2),
+                                   outsideRth=True,
+                                   orderRef='limiterBuy')
+
+        elif rejected_trade.order.orderRef == 'limiterSell':
+            new_order = LimitOrder('SELL',
+                                   totalQuantity=rejected_trade.order.totalQuantity,
+                                   lmtPrice=round(limit_price, ndigits=2),
+                                   outsideRth=True,
+                                   orderRef='limiterSell')
+        elif rejected_trade.order.orderRef == 'limiterStopSell':
+            new_order = StopLimitOrder('SELL',
+                                       totalQuantity=rejected_trade.order.totalQuantity,
+                                       lmtPrice=round(limit_price, ndigits=2),
+                                       stopPrice=rejected_trade.order.auxPrice,
+                                       outsideRth=True,
+                                       orderRef='limiterStopSell')
+        else:
+            return
+        self.trades.append(self.ib.placeOrder(rejected_trade.contract, new_order))
 
     def remove_existing_presale(self, ticker):
         for trade in self.ib.openTrades():
@@ -95,13 +136,15 @@ class Tws(object):
             self.order_cancel_event(trade)
 
     def order_cancel_event(self, trade: ib_insync.order.Trade, error_string: str = ''):
-        if trade.order.orderType == 'STP LMT' and trade.order.action == 'SELL':
+        if trade.order.orderRef == 'limiterStopLoss':
             return
 
+        # If ordered was cancel due to far limit
         error_reason = error_string.split('reason:')
-        if len(error_reason) > 1 and error_reason[1].startswith(self.LIMIT_REJECTION_TEXT):
-            self.loop.create_task(self.screener_buy(trade.contract.symbol, trade.order))
-
+        if len(error_reason) > 1 and \
+                (error_reason[1].startswith(self.LIMIT_REJECTION_TEXT) or
+                 error_reason[1].startswith(self.STOP_LIMIT_REJECTION_TEXT)):
+            self.loop.create_task(self.__handle__rejected_orders(rejected_trade=trade))
 
         message = f'{trade.order.action} {trade.order.orderType} order canceled for {trade.contract.symbol}'
         message = message if not error_string else message + '\n' + error_string
@@ -143,11 +186,13 @@ class Tws(object):
         limit_price = m_data.last + self.config.auto_stop_loss.limit
         stop_price = portfolio_item.averageCost + (
                 0.01 * self.config.auto_stop_loss.stop_percents * portfolio_item.averageCost)
-        order = ib_insync.order.StopLimitOrder('SELL',
-                                               totalQuantity=int(portfolio_item.position),
-                                               lmtPrice=round(limit_price, ndigits=2),
-                                               stopPrice=round(stop_price, ndigits=2),
-                                               outsideRth=True)
+        
+        order = StopLimitOrder('SELL',
+                               totalQuantity=int(portfolio_item.position),
+                               lmtPrice=round(limit_price, ndigits=2),
+                               stopPrice=round(stop_price, ndigits=2),
+                               outsideRth=True,
+                               orderRef='limiterStopLoss')
 
         self.trades.append(self.ib.placeOrder(portfolio_item.contract, order))
 
@@ -156,7 +201,8 @@ class Tws(object):
         for trade in self.ib.openTrades():
             if trade.contract == trade.contract \
                     and trade.order.orderType == 'STP LMT' \
-                    and trade.order.action == 'SELL':
+                    and trade.order.action == 'SELL' \
+                    and trade.order.orderRef == 'limiterStopLoss':
                 if trade.order.totalQuantity == portfolio_item.position:
                     # Existing Stop limit is good for us
                     return
@@ -174,7 +220,7 @@ class Tws(object):
             if trade.order.orderId == req_id:
                 return trade
 
-    def __partial_sell(self, ticker, quantity_percents, limit_price):
+    def __partial_sell(self, ticker, quantity_percents, limit_price, stop_price=0.0):
         """
         :param ticker: ticker
         :param quantity_percents: % of shares to sell
@@ -182,7 +228,16 @@ class Tws(object):
         """
         portfolio_item = self.__get_portfolio_item(ticker)
         quantity = (quantity_percents * 0.01) * portfolio_item.position
-        order = LimitOrder('SELL', int(quantity), round(limit_price, ndigits=2), outsideRth=True)
+        if stop_price != 0:
+            order = StopLimitOrder('SELL',
+                                   totalQuantity=int(quantity),
+                                   lmtPrice=round(limit_price, ndigits=2),
+                                   stopPrice=round(stop_price, ndigits=2),
+                                   outsideRth=True,
+                                   orderRef='limiterStopSell')
+        else:
+            order = LimitOrder('SELL', int(quantity), round(limit_price, ndigits=2), outsideRth=True,
+                               orderRef='limiterSell')
         self.trades.append(self.ib.placeOrder(portfolio_item.contract, order))
 
     def __get_portfolio_item(self, ticker) -> ib_insync.objects.PortfolioItem:

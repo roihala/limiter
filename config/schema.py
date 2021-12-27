@@ -6,6 +6,8 @@ from pydantic import BaseModel
 class SellButtons(BaseModel):
     values: List[int]
     limit: int
+    stop: int
+
 
 class AutoStopLoss(BaseModel):
     limit: int
