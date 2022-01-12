@@ -9,7 +9,7 @@ import pydantic
 from ib_insync import TagValue, ScannerSubscription
 
 from config.schema import Schema
-from structures.screener_result import ScreenerResult
+from src.structures.screener_result import ScreenerResult
 
 
 class Screener(object):

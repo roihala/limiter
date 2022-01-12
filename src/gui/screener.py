@@ -6,7 +6,7 @@ from typing import Dict
 from config.schema import Schema
 from src.gui.scrollable_frame import ScrollableFrame
 from src import tws
-from structures.screener_result import ScreenerResult
+from src.structures.screener_result import ScreenerResult
 
 
 class Screener(object):
