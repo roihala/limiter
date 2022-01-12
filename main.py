@@ -91,7 +91,16 @@ class Main(object):
                 title='Config file error')
             raise ConfigFileError(e)
 
+    @staticmethod
+    def loop_exception_handler(loop_instance, context):
+        # context["message"] will always be there; but context["exception"] may not
+        msg = context.get("exception", context["message"])
+        messagebox.showerror(
+            message=f"Internal failure in event loop:\n{msg}",
+            title='Event loop failure')
+
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
+    loop.set_exception_handler(Main.loop_exception_handler)
     Main(loop).run()
