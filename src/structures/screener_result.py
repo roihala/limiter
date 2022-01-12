@@ -7,6 +7,7 @@ class ScreenerResult(BaseModel):
     # Volume rounded to millions
     volume: float
     change_percents: float
+    position_percents: float
 
     @validator('last_value', 'change_percents', 'volume')
     def result_check(cls, v):

@@ -24,8 +24,8 @@ class ConfigFileError(Exception):
 
 
 class Main(object):
-    SCREENER_INTERVAL = 0.05
-    GUI_INTERVAL = 0.01
+    SCREENER_INTERVAL = 1
+    GUI_INTERVAL = 0.005
 
     def __init__(self, loop):
         args = self.create_parser().parse_args()

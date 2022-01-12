@@ -60,14 +60,14 @@ class Screener(object):
                 break
             await asyncio.sleep(0.01)
 
-        change_percents = (m_data.last / m_data.close) * 100
-        change_percents = change_percents - 100 if m_data.last > m_data.close else -1 * (100 - change_percents)
+        change_percents, position_percents = self.get_table_values(m_data, contract)
 
         try:
             screener_result = ScreenerResult(
                 ticker=contract.symbol,
                 last_value=m_data.last,
                 change_percents=change_percents,
+                position_percents=position_percents,
                 volume=m_data.volume / 10000)
             self.screener_results[contract.symbol] = screener_result
         except pydantic.error_wrappers.ValidationError:
@@ -76,5 +76,21 @@ class Screener(object):
                 ticker=contract.symbol,
                 last_value=0,
                 change_percents=0,
+                position_percents=0,
                 volume=0)
             self.screener_results[contract.symbol] = screener_result
+
+    def get_table_values(self, m_data: ib_insync.ticker.Ticker, contract: ib_insync.contract.Contract):
+        change_percents = (m_data.last / m_data.close) * 100
+        change_percents = change_percents - 100 if m_data.last > m_data.close else -1 * (100 - change_percents)
+
+        position = [position for position in self.ib.positions() if position.contract.symbol == contract.symbol]
+        if len(position) != 1:
+            position_percents = 0
+
+        else:
+            position = position[0]
+            position_percents = (m_data.last / position.avgCost) * 100
+            position_percents = position_percents - 100 if m_data.last > position.avgCost else -1 * (100 - change_percents)
+
+        return change_percents, position_percents

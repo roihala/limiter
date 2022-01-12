@@ -47,7 +47,7 @@ class Screener(object):
 
         for idx, (name, value) in enumerate(result):
             col_index = idx
-            if name == 'change_percents':
+            if name in ['change_percents', 'position_percents']:
                 text = str(value) + '%'
             elif name == 'volume':
                 text = str(value) + 'M'
